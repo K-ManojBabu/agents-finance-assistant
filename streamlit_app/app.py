@@ -4,12 +4,12 @@ import openai
 from bs4 import BeautifulSoup
 import requests
 
-# Optional: You can replace this with st.secrets["OPENAI_API_KEY"]
-openai.api_key = "your-openai-api-key"  # Replace with your key or use st.secrets
+# Initialize OpenAI client (use secrets for safety in production)
+client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
-# ───────────────────────────────
-# Simulated Agent Functions
-# ───────────────────────────────
+# ─────────────────────────────────────
+# Simulated "Agent" Functions (Simplified)
+# ─────────────────────────────────────
 
 def get_asia_tech_data(tickers="TSM,005930.KQ"):
     tickers_list = tickers.split(',')
@@ -17,37 +17,43 @@ def get_asia_tech_data(tickers="TSM,005930.KQ"):
     return data
 
 def scrape_earnings():
-    # Simple mock for now; scraping real data from Yahoo requires heavy parsing
+    # Replace with real scraping logic if needed
     return {"surprises": "TSMC beat estimates by 4%, Samsung missed by 2%."}
 
 def generate_summary(aum, earnings):
     prompt = f"Asia tech exposure is {aum}. Earnings update: {earnings}"
-    
-    response = openai.ChatCompletion.create(
+
+    response = client.chat.completions.create(
         model="gpt-4",
         messages=[
             {"role": "user", "content": prompt}
         ]
     )
-    return response['choices'][0]['message']['content']
+    return response.choices[0].message.content
 
-# ───────────────────────────────
-# Streamlit App
-# ───────────────────────────────
+# ─────────────────────────────────────
+# Streamlit Frontend App
+# ─────────────────────────────────────
 
-st.title("📈 Multi-Agent Finance Assistant (Simplified)")
+st.set_page_config(page_title="Finance Assistant", page_icon="📈")
+st.title("📈 Multi-Agent Finance Assistant (Streamlit Cloud)")
+
+st.markdown("""
+This assistant provides a **daily morning market brief** by analyzing Asia tech stock exposure and recent earnings.
+""")
 
 if st.button("Get Morning Market Brief"):
     try:
-        with st.spinner("Fetching data..."):
+        with st.spinner("Fetching data and generating response..."):
             data = get_asia_tech_data()
             earnings = scrape_earnings()["surprises"]
-            aum = "22%"  # Static for demo. Replace with logic if needed.
+            aum = "22%"  # Example AUM (hardcoded)
 
             brief = generate_summary(aum, earnings)
 
         st.success("✅ Market Brief Generated")
-        st.markdown(f"**Response:** {brief}")
+        st.markdown(f"**📢 Market Summary:**\n\n{brief}")
 
     except Exception as e:
-        st.error(f"An error occurred: {e}")
+        st.error("❌ An error occurred.")
+        st.exception(e)

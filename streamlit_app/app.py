@@ -1,5 +1,11 @@
-import streamlit as st
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from orchestrator import orchestrator
+
+import streamlit as st
 
 st.title("📈 Multi-Agent Finance Assistant")
 
